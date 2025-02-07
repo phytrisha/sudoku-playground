@@ -1,7 +1,16 @@
+'use client';
+
 import { getSudoku } from 'sudoku-gen';
+import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import React from 'react'; // Import React!
+
+interface Sudoku {
+  puzzle: string;
+  solution: string;
+}
 
 // Get a sudoku of specific difficulty (easy, medium, hard, expert)
-const sudoku = getSudoku('expert');
 
 function stringToSudokuArray(sudokuString: string) {
   if (sudokuString.length !== 81) {
@@ -21,31 +30,35 @@ function stringToSudokuArray(sudokuString: string) {
 }
 
 export default function Home() {
-  
-  console.log(stringToSudokuArray(sudoku.puzzle))
+  const [sudoku, setSudoku] = useState<Sudoku | null>(null); // Union type
+
+  useEffect(() => {
+    const newSudoku = getSudoku('expert');
+    setSudoku(newSudoku);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  const handleClick = () => {
+    const newSudoku = getSudoku('expert'); // Generate a new Sudoku
+    setSudoku(newSudoku);
+  };
+
+  if (!sudoku) {
+    return <div>Loading...</div>; // Important: Handle the initial null state
+  }
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <div className='font-mono tracking-[1em]'>
-          {stringToSudokuArray(sudoku.puzzle)[0]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[1]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[2]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[3]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[4]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[5]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[6]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[7]}
-          <br />
-          {stringToSudokuArray(sudoku.puzzle)[8]}
+          {stringToSudokuArray(sudoku.puzzle).map((row, rowIndex) => (
+            <React.Fragment key={rowIndex}>
+              {row.join('')}
+              <br />
+            </React.Fragment>
+          ))}
         </div>
+
+        <Button onClick={handleClick}>New Sudoku</Button>
       </main>
     </div>
   );
